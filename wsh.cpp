@@ -79,10 +79,11 @@ void wsh::interpret()		// loops executing commands from the command line.
 				running = false;
 				break;
 
-/*
+
 			case COPY :
 				copy();
 				break;
+
 			case CD :
 				cd();
 				break;
@@ -107,7 +108,6 @@ void wsh::interpret()		// loops executing commands from the command line.
 				makedir();
 				break;
 
-*/
 			case RMDIR :
 				removedir();
 				break;
@@ -122,7 +122,111 @@ void wsh::interpret()		// loops executing commands from the command line.
 		}
 	}
 }
+void wsh::copy()
+{
+    if (argc != 3){
+        cout << "Invalid arguments to copy" << endl;
+        return;
+    }
+    if (argc == 3){
+        if (strcmp(argv[1], argv[2]) == 0) {
+            cout << argv[1] << " " << argv[2] << endl;
+            cout << "Both files have the same name" << endl;
+            return;
+        }
+        copy(argv[1], argv[2]);
+    }
+}
 
+bool wsh::copy(char* src, char* dest)
+{
+    struct stat statbuf;
+
+    int rc = stat(argv[1], &statbuf);
+    if (rc) {
+        perror(argv[1]);
+        return 1;
+    }
+
+    if (S_ISDIR(statbuf.st_mode)) {
+        cout << "a dir" << endl;
+        return 1;
+    }
+    else {
+        ifstream source(src, ios::binary);
+        bool isOpen = source.is_open();
+        if (!isOpen){
+            perror("Error while opening file");
+            return false;
+        }
+        ofstream target(dest, ios::binary);
+        target << source.rdbuf();
+
+        source.close();
+        target.close();
+        return true;
+    }
+
+    return 0;
+
+}
+
+void wsh::cd() {
+
+}
+
+void wsh::list() {
+
+}
+
+void wsh::view() {
+    if (argc != 2){
+        cout << "Invalid arguments to view" << endl;
+        return;
+    }
+    if (argc == 2){
+        cout << "view " << argv[1] << endl;
+        return;
+    }
+}
+
+void wsh::del() {
+    if (argc != 2){
+        cout << "Invalid arguments to del" << endl;
+        return;
+    }
+    if (argc == 2){
+        cout << "del " << argv[1] << endl;
+        return;
+    }
+}
+
+void wsh::ren() {
+    if (argc != 3){
+        cout << "Invalid arguments to ren" << endl;
+        return;
+    }
+    if (argc == 3){
+        cout << "ren " << argv[1] << " " << argv[2] << endl;
+        return;
+    }
+}
+
+void wsh::makedir() {
+    int rc;
+    if (argc != 2){
+        cout << "Invalid arguments to makedir" << endl;
+        return;
+    }
+    if (argc == 2){
+//        cout << "makedir " << argv[1] << endl;
+        rc = mkdir(argv[1], S_IRWXU|S_IRWXG|S_IRWXO);
+        if (rc){
+            perror(argv[1]);
+        }
+        return;
+    }
+}
 void wsh::removedir()
 {
 	// verify 2 or 3 arguments only
@@ -189,7 +293,7 @@ bool wsh::removedir(char *dirName)
 			} 
 		}
 	}
-	// director is now empty -- chdir out of it and delete it
+	// directory is now empty -- chdir out of it and delete it
 	cout << "chdir out of " << dirName << endl;
 	chdir("..");
 	cout << "deleting " << dirName << endl;

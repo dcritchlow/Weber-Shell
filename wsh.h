@@ -18,6 +18,7 @@ class wsh
 		int				argc;
 		char*				argv[FILENAME_MAX];
 		bool	removedir(char *dir);
+        bool    copy(char *src, char *dest);
 
 	public:
 			wsh();
