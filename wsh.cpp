@@ -206,8 +206,6 @@ void wsh::list() {
 }
 
 void wsh::view() {
-//	struct dirent *dptr = NULL;
-//	DIR *dir = NULL;
 	struct stat statbuf;
 
     if (argc != 2){
@@ -215,15 +213,6 @@ void wsh::view() {
         return;
     }
     if (argc == 2){
-//		if (!(dir = opendir(argv[1]))) {
-//			perror(argv[1]);
-//		}
-////        cout << "view " << argv[1] << endl;
-//		while(NULL != (dptr = readdir(dir)) )
-//		{
-//			printf(" %s \n",dptr->d_name);
-//		}
-//		closedir(dir);
 		int rc = stat(argv[1], &statbuf);
 		if (rc) {
 			perror(argv[1]);
@@ -264,12 +253,33 @@ void wsh::del() {
 }
 
 void wsh::ren() {
+	struct stat statbuf;
+
     if (argc != 3){
 		cout << "Invalid argument count" << endl;
         return;
     }
     if (argc == 3){
-        cout << "ren " << argv[1] << " " << argv[2] << endl;
+//        cout << "ren " << argv[1] << " " << argv[2] << endl;
+		int rc = stat(argv[1], &statbuf);
+		if (rc) {
+			perror(argv[1]);
+			return;
+		}
+
+		ifstream source(argv[1], ios::binary);
+		bool isOpen = source.is_open();
+		if (!isOpen){
+			perror("Error while opening file");
+			return;
+		}
+		ofstream target(argv[2], ios::binary);
+		target << source.rdbuf();
+
+		source.close();
+		target.close();
+		unlink(argv[1]);
+
         return;
     }
 }
