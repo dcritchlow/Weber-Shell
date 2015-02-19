@@ -141,6 +141,8 @@ void wsh::copy()
 bool wsh::copy(char* src, char* dest)
 {
     struct stat statbuf;
+	struct dirent *dentry;
+	DIR *dir;
 
     int rc = stat(argv[1], &statbuf);
     if (rc) {
@@ -149,7 +151,21 @@ bool wsh::copy(char* src, char* dest)
     }
 
     if (S_ISDIR(statbuf.st_mode)) {
-        cout << "a dir" << endl;
+		if ((dir = opendir( src )) == NULL){
+			perror("Cannot open directory");
+		}
+		else {
+			while (( dentry = readdir(dir)) != NULL){
+//				copy(dentry->d_name, dest);
+//				cout >> dest;
+//				printf(d);
+//				cout >> dest >> endl;
+				cout << "changing dir " << src << endl;
+				cd(src);
+			}
+		}
+//        cout << "changing dir " << src << endl;
+//		cd(src);
         return 1;
     }
     else {
@@ -171,8 +187,18 @@ bool wsh::copy(char* src, char* dest)
 
 }
 
-void wsh::cd() {
+void wsh::cd(){
 
+}
+
+void wsh::cd(char* dir) {
+	int rc;
+	rc = chdir(argv[1]);
+	if (rc){
+		perror(argv[1]);
+	}
+
+	return;
 }
 
 void wsh::list() {
@@ -180,12 +206,23 @@ void wsh::list() {
 }
 
 void wsh::view() {
+	struct dirent *dptr = NULL;
+	DIR *dir = NULL;
+
     if (argc != 2){
-        cout << "Invalid arguments to view" << endl;
+        cout << "Invalid argument count" << endl;
         return;
     }
     if (argc == 2){
-        cout << "view " << argv[1] << endl;
+		if (!(dir = opendir(argv[1]))) {
+			perror(argv[1]);
+		}
+//        cout << "view " << argv[1] << endl;
+		while(NULL != (dptr = readdir(dir)) )
+		{
+			printf(" %s \n",dptr->d_name);
+		}
+		closedir(dir);
         return;
     }
 }
