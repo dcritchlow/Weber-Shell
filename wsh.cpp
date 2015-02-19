@@ -206,23 +206,39 @@ void wsh::list() {
 }
 
 void wsh::view() {
-	struct dirent *dptr = NULL;
-	DIR *dir = NULL;
+//	struct dirent *dptr = NULL;
+//	DIR *dir = NULL;
+	struct stat statbuf;
 
     if (argc != 2){
         cout << "Invalid argument count" << endl;
         return;
     }
     if (argc == 2){
-		if (!(dir = opendir(argv[1]))) {
+//		if (!(dir = opendir(argv[1]))) {
+//			perror(argv[1]);
+//		}
+////        cout << "view " << argv[1] << endl;
+//		while(NULL != (dptr = readdir(dir)) )
+//		{
+//			printf(" %s \n",dptr->d_name);
+//		}
+//		closedir(dir);
+		int rc = stat(argv[1], &statbuf);
+		if (rc) {
 			perror(argv[1]);
+			return;
 		}
-//        cout << "view " << argv[1] << endl;
-		while(NULL != (dptr = readdir(dir)) )
-		{
-			printf(" %s \n",dptr->d_name);
+		ifstream source(argv[1], ios::binary);
+		bool isOpen = source.is_open();
+		if (!isOpen){
+			perror("Error while opening file");
+			return;
 		}
-		closedir(dir);
+
+		cout << source.rdbuf();
+
+		source.close();
         return;
     }
 }
