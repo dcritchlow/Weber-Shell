@@ -125,7 +125,7 @@ void wsh::interpret()		// loops executing commands from the command line.
 void wsh::copy()
 {
     if (argc != 3){
-        cout << "Invalid arguments to copy" << endl;
+		cout << "Invalid argument count" << endl;
         return;
     }
     if (argc == 3){
@@ -192,7 +192,7 @@ void wsh::view() {
 
 void wsh::del() {
     if (argc != 2){
-        cout << "Invalid arguments to del" << endl;
+		cout << "Invalid argument count" << endl;
         return;
     }
     if (argc == 2){
@@ -203,7 +203,7 @@ void wsh::del() {
 
 void wsh::ren() {
     if (argc != 3){
-        cout << "Invalid arguments to ren" << endl;
+		cout << "Invalid argument count" << endl;
         return;
     }
     if (argc == 3){
@@ -215,7 +215,7 @@ void wsh::ren() {
 void wsh::makedir() {
     int rc;
     if (argc != 2){
-        cout << "Invalid argument count";
+        cout << "Invalid argument count" << endl;
         return;
     }
     if (argc == 2){
