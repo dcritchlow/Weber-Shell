@@ -215,7 +215,7 @@ void wsh::ren() {
 void wsh::makedir() {
     int rc;
     if (argc != 2){
-        cout << "Invalid arguments to makedir" << endl;
+        cout << "Invalid arguments to makedir";
         return;
     }
     if (argc == 2){
