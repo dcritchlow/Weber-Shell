@@ -228,12 +228,21 @@ void wsh::view() {
 }
 
 void wsh::del() {
+	struct stat statbuf;
+	int rc;
+
     if (argc != 2){
 		cout << "Invalid argument count" << endl;
         return;
     }
     if (argc == 2){
-        cout << "del " << argv[1] << endl;
+//        cout << "del " << argv[1] << endl;
+		rc = stat(argv[1], &statbuf);
+		if (rc) {
+			perror(argv[1]);
+			return;
+		}
+		unlink(argv[1]);
         return;
     }
 }
