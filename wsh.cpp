@@ -141,8 +141,9 @@ void wsh::copy()
 bool wsh::copy(char* src, char* dest)
 {
     struct stat statbuf;
-	struct dirent *dentry;
-	DIR *dir;
+//	struct dirent *dentry;
+//	DIR *dir;
+//	char *newDir;
 
     int rc = stat(argv[1], &statbuf);
     if (rc) {
@@ -151,22 +152,66 @@ bool wsh::copy(char* src, char* dest)
     }
 
     if (S_ISDIR(statbuf.st_mode)) {
-		if ((dir = opendir( src )) == NULL){
-			perror("Cannot open directory");
+    	cout << "making dir " << dest << endl;
+		mkdir(dest,  S_IRWXU|S_IRWXG|S_IRWXO);
+//		copy(src, dest);
+		DIR *dir;
+		struct dirent *dirEntry;
+		bool success;
+		int rc;
+
+		cout << "processing directory " << src << endl;
+		if (!(dir = opendir(src))) {
+			perror(src);
+			return false;
 		}
-		else {
-			while (( dentry = readdir(dir)) != NULL){
-//				copy(dentry->d_name, dest);
-//				cout >> dest;
-//				printf(d);
-//				cout >> dest >> endl;
-				cout << "changing dir " << src << endl;
-				cd(src);
+		// chdir into directory to process its entries
+		cout << "chdir into " << src << endl;
+		chdir(src);
+		while ((dirEntry = readdir(dir))) {
+			// if a directory found, recurse to delete everything in it
+			if (dirEntry->d_type & DT_DIR) {
+				// skip "." and ".."
+				cout << "found directory " << dirEntry->d_name << endl;
+				if (!strcmp(dirEntry->d_name, ".")){
+					cout << "skip . dir" << endl;
+					continue;
+				}
+				if (!strcmp(dirEntry->d_name, "..")){
+					cout << "skip .. dir" << endl;
+					continue;
+				}
+				cout << "found subdirectory " << dirEntry->d_name << endl;
+//			success = removedir(dirEntry->d_name);
+//			if (!success) {
+//				return false;
+//			}
+			} else {
+				// otherwise delete the entry
+				cout << "copying " << dirEntry->d_name << endl;
+				string dir = strcat(cwd, dirEntry->d_name);
+				cout << "cwd " << cwd << endl;
+				// success = true;
+				copy(dirEntry->d_name, dest);
+//			if (rc) {
+//				perror(dirEntry->d_name);
+//				return false;
+//			}
 			}
 		}
-//        cout << "changing dir " << src << endl;
-//		cd(src);
-        return 1;
+		// directory is now empty -- chdir out of it and delete it
+//		cout << "chdir out of " << src << endl;
+//		chdir("..");
+//		cout << "copying " << src << endl;
+//		// success = true;
+//		copy(dirEntry->d_name, dest);
+//	rc = rmdir(dirName);
+//	if (rc) {
+//		perror(dirName);
+//		return false;
+//	}
+		return true;
+
     }
     else {
         ifstream source(src, ios::binary);
@@ -185,6 +230,61 @@ bool wsh::copy(char* src, char* dest)
 
     return 0;
 
+}
+
+bool wsh::copy(char *dirName){
+	DIR *dir;
+	struct dirent *dirEntry;
+	bool success;
+	int rc;
+
+	cout << "processing directory " << dirName << endl;
+	if (!(dir = opendir(dirName))) {
+		perror(dirName);
+		return false;
+	}
+	// chdir into directory to process its entries
+	cout << "chdir into " << dirName << endl;
+	chdir(dirName);
+	while ((dirEntry = readdir(dir))) {
+		// if a directory found, recurse to delete everything in it
+		if (dirEntry->d_type & DT_DIR) {
+			// skip "." and ".."
+			if (!strcmp(dirEntry->d_name, ".")){
+				cout << "skip . dir" << endl;
+				continue;
+			}
+			if (!strcmp(dirEntry->d_name, "..")){
+				cout << "skip .. dir" << endl;
+				continue;
+			}
+			cout << "found subdirectory " << dirEntry->d_name << endl;
+//			success = removedir(dirEntry->d_name);
+//			if (!success) {
+//				return false;
+//			}
+		} else {
+			// otherwise delete the entry
+			cout << "copying " << dirEntry->d_name << endl;
+			// success = true;
+//			rc = remove(dirEntry->d_name);
+//			if (rc) {
+//				perror(dirEntry->d_name);
+//				return false;
+//			}
+		}
+	}
+	// directory is now empty -- chdir out of it and delete it
+	cout << "chdir out of " << dirName << endl;
+	chdir("..");
+	cout << "copying " << dirName << endl;
+	// success = true;
+//	rc = rmdir(dirName);
+//	if (rc) {
+//		perror(dirName);
+//		return false;
+//	}
+	return true;
 }
 
 void wsh::cd(){

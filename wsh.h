@@ -19,6 +19,7 @@ class wsh
 		char*				argv[FILENAME_MAX];
 		bool	removedir(char *dir);
         bool    copy(char *src, char *dest);
+		bool	copy(char *dir);
 		void	cd(char *dir);
 
 	public:
