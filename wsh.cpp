@@ -157,8 +157,8 @@ bool wsh::copy(char* src, char* dest)
 //		copy(src, dest);
 		DIR *dir;
 		struct dirent *dirEntry;
-		bool success;
-		int rc;
+//		bool success;
+//		int rc;
 
 		cout << "processing directory " << src << endl;
 		if (!(dir = opendir(src))) {
@@ -235,8 +235,8 @@ bool wsh::copy(char* src, char* dest)
 bool wsh::copy(char *dirName){
 	DIR *dir;
 	struct dirent *dirEntry;
-	bool success;
-	int rc;
+//	bool success;
+//	int rc;
 
 	cout << "processing directory " << dirName << endl;
 	if (!(dir = opendir(dirName))) {
