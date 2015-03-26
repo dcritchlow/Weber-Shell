@@ -189,7 +189,23 @@ void wsh::cd(char* dir) {
 }
 
 void wsh::list() {
+	struct stat statbuf;
+	struct tm *t;
+	int rc;
+	char buffer[PATH_MAX];
 
+	// issue a message if a file object was not specified on the commandline
+	if (argc != 2) {
+		cout << "Usage: " << argv[0] << " filename" << endl;
+//		return 1;
+	}
+
+	// get the inode information on the file object named in argv[1]
+	rc = stat(argv[1], &statbuf);
+	if (rc != 0) {
+		perror(argv[1]);
+//		return 1;
+	}
 }
 
 void wsh::view() {
