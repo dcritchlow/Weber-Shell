@@ -199,17 +199,10 @@ int wsh::list(int argc, char **argv) {
 	char buffer[PATH_MAX];
 	DIR *dir;
 	struct dirent *ent;
-	const char *readOnlyDirs[2];
-	readOnlyDirs[0] = ".";
-	readOnlyDirs[1] = "..";
 
-	// issue a message if a file object was not specified on the commandline
 	if (argc != 2) {
-
 		if ((dir = opendir (cwd)) != NULL) {
-			/* print all the files and directories within directory */
 			while (ent = readdir (dir)) {
-//				printf ("%s\n", ent->d_name);
 				if (ent->d_type & DT_REG)
 					cout << ent->d_name << endl;
 				else if (ent->d_type & DT_DIR)
@@ -226,7 +219,6 @@ int wsh::list(int argc, char **argv) {
 					cout << ent->d_name << endl;
 				else
 					cout << ent->d_name << " is something other than a file or directory" << endl;
-
 			}
 			closedir (dir);
 		} else {
@@ -234,61 +226,59 @@ int wsh::list(int argc, char **argv) {
 			perror (cwd);
 			return EXIT_FAILURE;
 		}
-
-//		cout << cwd << " current dir" << endl;
-//		if (S_ISREG(statbuf.st_mode))
-//			cout << cwd << " is a regular file" << endl;
-//		else if (S_ISDIR(statbuf.st_mode))
-//			cout << cwd << "/" << endl;
-//		else if (S_ISLNK(statbuf.st_mode))
-//			cout << cwd << " is a symbolic link" << endl;
-//		else
-//			cout << cwd << " is something other than a file or directory" << endl;
-//
-//		// report on the size of the object
-//		sprintf(buffer, "%s is %d bytes in size", cwd, (int)statbuf.st_size);
-//		cout << buffer << endl;
-//
-//		// report the date when the object was last modified
-//		t = localtime(&statbuf.st_mtime);
-//		sprintf(buffer, "%s was last modified on %02d/%02d/%04d",
-//				argv[1],
-//				t->tm_mon+1,
-//				t->tm_mday,
-//				t->tm_year+1900);
-//		cout << buffer << endl;
 	}
 
-	// get the inode information on the file object named in argv[1]
-	rc = stat(argv[1], &statbuf);
-	if (rc != 0) {
-		perror(argv[1]);
-//		return 1;
+	if (argc == 2) {
+		if (strcmp(argv[1], "-l")) {
+			if ((dir = opendir(argv[1])) != NULL) {
+				while (ent = readdir(dir)) {
+					if (ent->d_type & DT_REG)
+						cout << ent->d_name << endl;
+					else if (ent->d_type & DT_DIR) if (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, ".."))
+						cout << ent->d_name << endl;
+					else
+						cout << ent->d_name << "/" << endl;
+					else if (ent->d_type & DT_LNK)
+						cout << ent->d_name << " is a symbolic link" << endl;
+					else if (strcmp(ent->d_name, ".") || strcmp(ent->d_name, ".."))
+						cout << ent->d_name << endl;
+					else
+						cout << ent->d_name << " is something other than a file or directory" << endl;
+				}
+				closedir(dir);
+			} else {
+				/* could not open directory */
+				perror(argv[1]);
+				return EXIT_FAILURE;
+			}
+		}
+
+		if (!strcmp(argv[1], "-l")) {
+			if ((dir = opendir(cwd)) != NULL) {
+				while (ent = readdir(dir)) {
+					if (ent->d_type & DT_REG)
+						cout << ent->d_name << endl;
+					else if (ent->d_type & DT_DIR) if (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, ".."))
+						cout << ent->d_name << endl;
+					else
+						cout << ent->d_name << "/" << endl;
+					else if (ent->d_type & DT_LNK)
+						cout << ent->d_name << " is a symbolic link" << endl;
+					else if (strcmp(ent->d_name, ".") || strcmp(ent->d_name, ".."))
+						cout << ent->d_name << endl;
+					else
+						cout << ent->d_name << " is something other than a file or directory" << endl;
+				}
+				closedir(dir);
+			} else {
+				/* could not open directory */
+				perror(argv[1]);
+				return EXIT_FAILURE;
+			}
+		}
 	}
-
-    // report on the type of the object
-    if (S_ISREG(statbuf.st_mode))
-        cout << argv[1] << " is a regular file" << endl;
-    else if (S_ISDIR(statbuf.st_mode))
-        cout << argv[1] << " is a directory" << endl;
-    else if (S_ISLNK(statbuf.st_mode))
-        cout << argv[1] << " is a symbolic link" << endl;
-    else
-        cout << argv[1] << " is something other than a file or directory" << endl;
-
-    // report on the size of the object
-    sprintf(buffer, "%s is %d bytes in size", argv[1], (int)statbuf.st_size);
-    cout << buffer << endl;
-
-    // report the date when the object was last modified
-    t = localtime(&statbuf.st_mtime);
-    sprintf(buffer, "%s was last modified on %02d/%02d/%04d",
-            argv[1],
-            t->tm_mon+1,
-            t->tm_mday,
-            t->tm_year+1900);
-    cout << buffer << endl;
 }
+
 
 void wsh::view() {
 	struct stat statbuf;
