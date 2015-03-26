@@ -2,6 +2,8 @@
 #include <map>
 #include <string>
 #include <limits.h>
+#include <cygwin/stat.h>
+
 using namespace std;
 
 
@@ -20,6 +22,7 @@ class wsh
 		bool	removedir(char *dir);
         bool    copy(char *src, char *dest);
 		void	cd(char *dir);
+		int		list(int argc, char **argv);
 
 	public:
 			wsh();
@@ -35,5 +38,7 @@ class wsh
 		void	ren();
 		void	makedir();
 		void	removedir();
+
+	void showFiles(char **argv, stat &statbuf, tm *t, char buffer[]);
 };
 
