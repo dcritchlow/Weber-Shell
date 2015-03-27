@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <dejagnu.h>
 //#include <InstallerPlugins/InstallerPlugins.h>
 //#include <InstallerPlugins/InstallerPlugins.h>
 
@@ -197,9 +198,10 @@ void wsh::list() {
 
 int wsh::list(int argc, char **argv) {
 	struct stat statbuf;
+//	struct stat statbuf2;
 //	struct tm *t;
 //	int rc;
-//	char buffer[PATH_MAX];
+	char buffer[PATH_MAX];
 	DIR *dir;
 	struct dirent *ent;
 
@@ -232,35 +234,28 @@ int wsh::list(int argc, char **argv) {
 
 	if (argc == 2) {
 		if (strcmp(argv[1], "-l") != 0) {
-//			puts("not -l");
+			cout << argv[1] << ":" << endl;
 
-			if ((dir = opendir (argv[1])) != NULL) {
-//				puts("opened dir");
+			char *currentDir = strcat(cwd, "/");
+			currentDir = strcat(currentDir, argv[1]);
+
+			if ((dir = opendir (currentDir)) != NULL) {
 
 				while( (ent = readdir(dir)) != NULL ) {
-//					puts("in while");
 					if( strcmp(ent->d_name, ".") == 0 ||  strcmp(ent->d_name, "..") == 0)
 						continue;
 
-//					puts("after . check");
-					stat(ent->d_name, &statbuf);
+					lstat(ent->d_name, &statbuf);
 
 					printf("%s", ent->d_name);
 
-					if( S_ISDIR(statbuf.st_mode) )
-						puts("Directory");
-					else if ( S_ISREG(statbuf.st_mode) )
-						puts("File");
-					else if ( S_ISCHR(statbuf.st_mode) )
-						puts("Character Device");
-					else if ( S_ISBLK(statbuf.st_mode) )
-						puts("Block Device");
-					else if ( S_ISFIFO(statbuf.st_mode) )
-						puts("Fifo");
-					else if ( S_ISLNK(statbuf.st_mode) )
-						puts("Link");
+					if (ent->d_type & DT_DIR)
+						puts("/");
+					else if ( statbuf.st_mode & S_IXUSR )
+						puts("*");
 					else
-						puts("Socket");
+						puts("");
+
 				}
 				closedir (dir);
 			}
