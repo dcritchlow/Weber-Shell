@@ -9,6 +9,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
+//#include <InstallerPlugins/InstallerPlugins.h>
+//#include <InstallerPlugins/InstallerPlugins.h>
+
 using namespace std;
 
 
@@ -194,34 +197,33 @@ void wsh::list() {
 
 int wsh::list(int argc, char **argv) {
 	struct stat statbuf;
-	struct tm *t;
-	int rc;
-	char buffer[PATH_MAX];
+//	struct tm *t;
+//	int rc;
+//	char buffer[PATH_MAX];
 	DIR *dir;
 	struct dirent *ent;
 
 	if (argc != 2) {
 		if ((dir = opendir (cwd)) != NULL) {
-			while (ent = readdir (dir)) {
-				if (ent->d_type & DT_REG)
-					cout << ent->d_name << endl;
-				else if (ent->d_type & DT_DIR)
-					if (!strcmp(ent->d_name, "." ) || !strcmp(ent->d_name, ".." )) {
-						cout << ent->d_name << endl;
-						continue;
-					} else {
-						cout << ent->d_name << "/" << endl;
-						continue;
-					}
-				else if (ent->d_type & DT_LNK)
-					cout << ent->d_name << " is a symbolic link" << endl;
-				else if (strcmp(ent->d_name, ".") || strcmp(ent->d_name, ".."))
-					cout << ent->d_name << endl;
+
+			while( (ent = readdir(dir)) != NULL ) {
+				if( strcmp(ent->d_name, ".") == 0 ||  strcmp(ent->d_name, "..") == 0)
+					continue;
+
+				lstat(ent->d_name, &statbuf);
+
+				printf("%s", ent->d_name);
+
+				if( S_ISDIR(statbuf.st_mode) )
+					puts("/");
+				else if ( statbuf.st_mode & S_IXUSR )
+					puts("*");
 				else
-					cout << ent->d_name << " is something other than a file or directory" << endl;
+					puts("");
 			}
 			closedir (dir);
-		} else {
+		}
+		else {
 			/* could not open directory */
 			perror (cwd);
 			return EXIT_FAILURE;
@@ -229,33 +231,50 @@ int wsh::list(int argc, char **argv) {
 	}
 
 	if (argc == 2) {
-		if (strcmp(argv[1], "-l")) {
-			if ((dir = opendir(argv[1])) != NULL) {
-				while (ent = readdir(dir)) {
-					if (ent->d_type & DT_REG)
-						cout << ent->d_name << endl;
-					else if (ent->d_type & DT_DIR) if (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, ".."))
-						cout << ent->d_name << endl;
+		if (strcmp(argv[1], "-l") != 0) {
+//			puts("not -l");
+
+			if ((dir = opendir (argv[1])) != NULL) {
+//				puts("opened dir");
+
+				while( (ent = readdir(dir)) != NULL ) {
+//					puts("in while");
+					if( strcmp(ent->d_name, ".") == 0 ||  strcmp(ent->d_name, "..") == 0)
+						continue;
+
+//					puts("after . check");
+					stat(ent->d_name, &statbuf);
+
+					printf("%s", ent->d_name);
+
+					if( S_ISDIR(statbuf.st_mode) )
+						puts("Directory");
+					else if ( S_ISREG(statbuf.st_mode) )
+						puts("File");
+					else if ( S_ISCHR(statbuf.st_mode) )
+						puts("Character Device");
+					else if ( S_ISBLK(statbuf.st_mode) )
+						puts("Block Device");
+					else if ( S_ISFIFO(statbuf.st_mode) )
+						puts("Fifo");
+					else if ( S_ISLNK(statbuf.st_mode) )
+						puts("Link");
 					else
-						cout << ent->d_name << "/" << endl;
-					else if (ent->d_type & DT_LNK)
-						cout << ent->d_name << " is a symbolic link" << endl;
-					else if (strcmp(ent->d_name, ".") || strcmp(ent->d_name, ".."))
-						cout << ent->d_name << endl;
-					else
-						cout << ent->d_name << " is something other than a file or directory" << endl;
+						puts("Socket");
 				}
-				closedir(dir);
-			} else {
+				closedir (dir);
+			}
+			else {
 				/* could not open directory */
-				perror(argv[1]);
+				perror (cwd);
 				return EXIT_FAILURE;
 			}
 		}
 
-		if (!strcmp(argv[1], "-l")) {
+		if (strcmp(argv[1], "-l") == 0) {
+			puts("yes its  -l");
 			if ((dir = opendir(cwd)) != NULL) {
-				while (ent = readdir(dir)) {
+				while ((ent = readdir(dir))) {
 					if (ent->d_type & DT_REG)
 						cout << ent->d_name << endl;
 					else if (ent->d_type & DT_DIR) if (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, ".."))
@@ -277,6 +296,7 @@ int wsh::list(int argc, char **argv) {
 			}
 		}
 	}
+	return EXIT_SUCCESS;
 }
 
 
