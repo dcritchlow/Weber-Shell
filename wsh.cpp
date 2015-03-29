@@ -332,7 +332,7 @@ void wsh::printDirectoryWithSubDirectory(struct stat &statbuf, DIR *dir, dirent 
 
 				printf("%s:\n",ent->d_name);
 
-				printDirectory(statbuf, dir, ent, currDir);
+				printDirectoryWithSubDirectory(statbuf, dir, ent, currDir);
 			}
 			else{
 				printShortList(statbuf, ent);
