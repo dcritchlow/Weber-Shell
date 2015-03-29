@@ -2,6 +2,10 @@
 #include <map>
 #include <string>
 #include <limits.h>
+#include <sys/dirent.h>
+#include <sys/stat.h>
+#include <dirent.h>
+
 using namespace std;
 
 
@@ -36,5 +40,17 @@ class wsh
 		void	ren();
 		void	makedir();
 		void	removedir();
+
+	bool isDotDirectory(dirent * ent);
+
+	static void printLongList(struct stat &statbuf, tm *t, dirent *ent);
+
+	void printShortList(struct stat &statbuf, dirent *ent);
+
+	char * isADirectory(struct stat &statbuf, char *const ent);
+
+	char * printDirectory(struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir);
+
+	void printDirectoryLong(tm *t, struct stat &statbuf, DIR *&dir, dirent *&ent);
 };
 

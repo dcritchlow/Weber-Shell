@@ -9,10 +9,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <time.h>
 #include <ftw.h>
-#include <dejagnu.h>
-//#include <InstallerPlugins/InstallerPlugins.h>
-//#include <InstallerPlugins/InstallerPlugins.h>
 
 using namespace std;
 
@@ -200,36 +198,44 @@ void wsh::list() {
 
 int wsh::list(int argc, char **argv) {
 	struct stat statbuf;
-	struct FTW ftwbuf;
-//	struct stat statbuf2;
-//	struct tm *t;
+//	struct FTW ftwbuf;
+	struct tm *t;
 	int flags = 0;
 	char buffer[PATH_MAX];
 	DIR *dir;
 	struct dirent *ent;
-	char *parent = cwd;
-
 
 	if(strcmp(argv[0], "list") == 0 && argc ==1){
-		puts("not -l");
 
-//			char *currentDir = strcat(cwd, "/");
-//			currentDir = strcat(currentDir, argv[1]);
+		printDirectory(statbuf, dir, ent, cwd);
 
-		if ((dir = opendir (cwd)) != NULL) {
+	}
+
+	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-l") == 0 && argc == 2) {
+
+		printDirectoryLong(t, statbuf, dir, ent);
+
+	}
+
+	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-s") == 0 && argc == 2) {
+
+		printDirectory(statbuf, dir, ent, cwd);
+
+	}
+
+}
+
+void wsh::printDirectoryLong(tm *t, struct stat &statbuf, DIR *&dir, dirent *&ent) {
+	if ((dir = opendir (cwd)) != NULL) {
 
 			while( (ent = readdir(dir)) != NULL ) {
-				if( strcmp(ent->d_name, ".") == 0 ||  strcmp(ent->d_name, "..") == 0)
+				if( isDotDirectory(ent) )
 					continue;
 
 				lstat(ent->d_name, &statbuf);
-				printf("%s", ent->d_name);
-				if (ent->d_type & DT_DIR)
-					puts("/");
-				else if ( statbuf.st_mode & S_IXUSR )
-					puts("*");
-				else
-					puts("");
+				t = localtime(&statbuf.st_mtime);
+
+				printLongList(statbuf, t, ent);
 
 			}
 			closedir(dir);
@@ -237,30 +243,41 @@ int wsh::list(int argc, char **argv) {
 		else {
 			/* could not open directory */
 			perror (cwd);
-			return EXIT_FAILURE;
 		}
+}
+
+char * wsh::isADirectory(struct stat &statbuf, char *const ent) {
+	if( S_ISDIR(statbuf.st_mode) ){
+		DIR *dir;
+		struct dirent *ent;
+		char pwd[PATH_MAX];
+		char parent[PATH_MAX];
+//					parent = cwd;
+//					puts(parent);
+		char *currentDir = strcat(getcwd(pwd, PATH_MAX), "/");
+//					puts(currentDir);
+		currentDir = strcat(currentDir, ent->d_name);
+		puts(currentDir);
+//					puts("parent");
+//					puts(parent);
+
+//		printDirectory(statbuf, dir, ent, currentDir);
+
+		return currentDir;
+
 	}
+}
 
-	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-l") == 1 && argc == 2) {
-		puts("not -l");
-
-		char *currentDir = strcat(cwd, "/");
-		currentDir = strcat(currentDir, argv[1]);
-
-		if ((dir = opendir (currentDir)) != NULL) {
+char * wsh::printDirectory(struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir) {
+	if ((dir = opendir (currentDir)) != NULL) {
 
 			while( (ent = readdir(dir)) != NULL ) {
-				if( strcmp(ent->d_name, ".") == 0 ||  strcmp(ent->d_name, "..") == 0)
+				if(isDotDirectory(ent))
 					continue;
 
 				lstat(ent->d_name, &statbuf);
 
-				if (ent->d_type & DT_DIR)
-					puts("/");
-				else if ( statbuf.st_mode & S_IXUSR )
-					puts("*");
-				else
-					puts("");
+				printShortList(statbuf, ent);
 
 			}
 			closedir(dir);
@@ -268,152 +285,43 @@ int wsh::list(int argc, char **argv) {
 		else {
 			/* could not open directory */
 			perror (cwd);
-			return EXIT_FAILURE;
 		}
-		return EXIT_SUCCESS;
-	}
-
-//	if (strcmp(argv[0], "list") == 0 && argc == 1) {
-//		if ((dir = opendir (cwd)) != NULL) {
-//
-//			while( (ent = readdir(dir)) != NULL ) {
-//				if( strcmp(ent->d_name, ".") == 0 ||  strcmp(ent->d_name, "..") == 0)
-//					continue;
-//
-//				lstat(ent->d_name, &statbuf);
-//
-//				printf("%s", ent->d_name);
-//
-//				if( S_ISDIR(statbuf.st_mode) )
-//					puts("/");
-//				else if ( statbuf.st_mode & S_IXUSR )
-//					puts("*");
-//				else
-//					puts("");
-//			}
-//			closedir (dir);
-//		}
-//		else {
-//			/* could not open directory */
-//			perror (cwd);
-//			return EXIT_FAILURE;
-//		}
-////		flags |= FTW_DEPTH;
-////		if (nftw(cwd, display_info, 20, flags) == -1)
-////		{
-////			perror("nftw");
-////			return EXIT_FAILURE;
-////		}
-////		ftw(".", display_info, -1);
-//		return EXIT_SUCCESS;
-//	}
+}
 
 
 
-//	if (argc == 2){
-//		if (strcmp(argv[1], "-l") == 0 && argc == 2) {
-//			puts("2nd arg is -l");
-//			if ((dir = opendir(cwd)) != NULL) {
-//
-//				while ((ent = readdir(dir)) != NULL) {
-//					if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
-//						continue;
-//
-//					lstat(ent->d_name, &statbuf);
-//
-//					printf((S_ISDIR(statbuf.st_mode)) ? "d" : "-");
-//					printf((statbuf.st_mode & S_IRUSR) ? "r" : "-");
-//					printf((statbuf.st_mode & S_IWUSR) ? "w" : "-");
-//					printf((statbuf.st_mode & S_IXUSR) ? "x" : "-");
-//					printf((statbuf.st_mode & S_IRGRP) ? "r" : "-");
-//					printf((statbuf.st_mode & S_IWGRP) ? "w" : "-");
-//					printf((statbuf.st_mode & S_IXGRP) ? "x" : "-");
-//					printf((statbuf.st_mode & S_IROTH) ? "r" : "-");
-//					printf((statbuf.st_mode & S_IWOTH) ? "w" : "-");
-//					printf((statbuf.st_mode & S_IXOTH) ? "x" : "-");
-//					printf("\t%s\n", ent->d_name);
-//
-//
-//				}
-//				closedir(dir);
-//			}
-//			else {
-//				/* could not open directory */
-//				perror(cwd);
-//				return EXIT_FAILURE;
-//			}
-//		}
+void wsh::printShortList(struct stat &statbuf, dirent *ent) {
+	printf("%s%s\n"
+				,ent->d_name
+				,(ent->d_type & DT_DIR) ? "/" :
+				(statbuf.st_mode & S_IXUSR) ? "*" :
+				"");
+}
 
+void wsh::printLongList(struct stat &statbuf, tm *t, dirent *ent) {
+	printf("%s%s%s%s%s%s%s%s%s%s %7jd %02d/%02d/%04d %02d:%02d:%02d %s\n"
+				,(S_ISDIR(statbuf.st_mode)) ? "d" : "-"
+				,(statbuf.st_mode & S_IRUSR) ? "r" : "-"
+				,(statbuf.st_mode & S_IWUSR) ? "w" : "-"
+				,(statbuf.st_mode & S_IXUSR) ? "x" : "-"
+				,(statbuf.st_mode & S_IRGRP) ? "r" : "-"
+				,(statbuf.st_mode & S_IWGRP) ? "w" : "-"
+				,(statbuf.st_mode & S_IXGRP) ? "x" : "-"
+				,(statbuf.st_mode & S_IROTH) ? "r" : "-"
+				,(statbuf.st_mode & S_IWOTH) ? "w" : "-"
+				,(statbuf.st_mode & S_IXOTH) ? "x" : "-"
+				,(intmax_t) statbuf.st_size
+				,t->tm_mon+1
+				,t->tm_mday
+				,t->tm_year+1900
+				,t->tm_hour
+				,t->tm_min
+				,t->tm_sec
+				,ent->d_name);
+}
 
-
-//		if (strcmp(argv[1], "-l")) {
-//			puts("2nd arg is dir name");
-//			char *currentDir = strcat(cwd, "/");
-//			currentDir = strcat(currentDir, argv[1]);
-//			puts(currentDir);
-//
-//			if ((dir = opendir (currentDir)) != NULL) {
-//
-//				while( (ent = readdir(dir)) != NULL ) {
-//					if( strcmp(ent->d_name, ".") == 0 ||  strcmp(ent->d_name, "..") == 0)
-//						continue;
-//
-//					lstat(ent->d_name, &statbuf);
-//					printf("%s", ent->d_name);
-//					if (ent->d_type & DT_DIR)
-//						puts("/");
-//					else if ( statbuf.st_mode & S_IXUSR )
-//						puts("*");
-//					else
-//						puts("");
-//
-//				}
-//				closedir(dir);
-//			}
-//			else {
-//				/* could not open directory */
-//				perror (cwd);
-//				return EXIT_FAILURE;
-//			}
-//		}
-//	}
-//	if (argc > 2) {
-//		char *currentDir = strcat(cwd, "/");
-//		currentDir = strcat(currentDir, argv[1]);
-//
-//		if ((dir = opendir(currentDir)) != NULL) {
-//
-//			while ((ent = readdir(dir)) != NULL) {
-//				if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
-//					continue;
-//
-//				lstat(ent->d_name, &statbuf);
-//
-//				printf((S_ISDIR(statbuf.st_mode)) ? "d" : "-");
-//				printf((statbuf.st_mode & S_IRUSR) ? "r" : "-");
-//				printf((statbuf.st_mode & S_IWUSR) ? "w" : "-");
-//				printf((statbuf.st_mode & S_IXUSR) ? "x" : "-");
-//				printf((statbuf.st_mode & S_IRGRP) ? "r" : "-");
-//				printf((statbuf.st_mode & S_IWGRP) ? "w" : "-");
-//				printf((statbuf.st_mode & S_IXGRP) ? "x" : "-");
-//				printf((statbuf.st_mode & S_IROTH) ? "r" : "-");
-//				printf((statbuf.st_mode & S_IWOTH) ? "w" : "-");
-//				printf((statbuf.st_mode & S_IXOTH) ? "x" : "-");
-//				printf("\t%s", ent->d_name);
-//
-//
-//			}
-//			closedir(dir);
-//		}
-//		else {
-//			/* could not open directory */
-//			perror(cwd);
-//			return EXIT_FAILURE;
-//		}
-//	}
-//	return EXIT_SUCCESS;
-
-
+bool wsh::isDotDirectory(dirent *ent) {
+	return strcmp(ent->d_name, ".") == 0 ||  strcmp(ent->d_name, "..") == 0;
 }
 
 int display_info(const char *fpath, const struct stat *sb, int type)
