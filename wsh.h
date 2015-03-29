@@ -46,11 +46,16 @@ class wsh
 	static void printLongList(struct stat &statbuf, tm *t, dirent *ent);
 
 	void printShortList(struct stat &statbuf, dirent *ent);
+	void printShortListDir(struct stat &statbuf, dirent *ent);
 
-	char * isADirectory(struct stat &statbuf, char *const ent);
+	int isADirectory(struct stat &statbuf, char *const ent);
 
 	char * printDirectory(struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir);
 
-	void printDirectoryLong(tm *t, struct stat &statbuf, DIR *&dir, dirent *&ent);
+//	void printDirectoryLong(tm *t, struct stat &statbuf, DIR *&dir, dirent *&ent, char *currentDir);
+	void printDirectoryLong(tm *t, struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir);
+
+	void printDirectoryWithSubDirectory(struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir);
+	void printDirectoryWithSubLong(tm *t, struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir);
 };
 

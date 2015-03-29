@@ -11,6 +11,7 @@
 #include <dirent.h>
 #include <time.h>
 #include <ftw.h>
+#include <sys/syslimits.h>
 
 using namespace std;
 
@@ -25,7 +26,7 @@ char*	fmodes[] = { "---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx" };
 
 
 
-static int display_info(const char *fpath, const struct stat *sb, int tflag);
+//static int display_info(const char *fpath, const struct stat *sb, int tflag);
 
 wsh::wsh()
 {
@@ -199,11 +200,11 @@ void wsh::list() {
 int wsh::list(int argc, char **argv) {
 	struct stat statbuf;
 //	struct FTW ftwbuf;
-	struct tm *t;
-	int flags = 0;
-	char buffer[PATH_MAX];
-	DIR *dir;
-	struct dirent *ent;
+	struct tm *t = nullptr;
+//	int flags = 0;
+//	char buffer[PATH_MAX];
+	DIR *dir = nullptr;
+	struct dirent *ent = nullptr;
 
 	if(strcmp(argv[0], "list") == 0 && argc ==1){
 
@@ -213,128 +214,200 @@ int wsh::list(int argc, char **argv) {
 
 	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-l") == 0 && argc == 2) {
 
-		printDirectoryLong(t, statbuf, dir, ent);
+		printDirectoryLong(t, statbuf, dir, ent, cwd);
+
+	}
+	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-ls") == 0 && argc == 2) {
+
+		printDirectoryWithSubLong(t, statbuf, dir, ent, cwd);
 
 	}
 
 	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-s") == 0 && argc == 2) {
 
-		printDirectory(statbuf, dir, ent, cwd);
+		printDirectoryWithSubDirectory(statbuf, dir, ent, cwd);
 
 	}
-
+	return EXIT_SUCCESS;
 }
 
-void wsh::printDirectoryLong(tm *t, struct stat &statbuf, DIR *&dir, dirent *&ent) {
-	if ((dir = opendir (cwd)) != NULL) {
+void wsh::printDirectoryWithSubDirectory(struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir) {
+	if ((dir = opendir (currentDir)) != NULL) {
 
-			while( (ent = readdir(dir)) != NULL ) {
-				if( isDotDirectory(ent) )
-					continue;
+		while( (ent = readdir(dir)) != NULL ) {
+			if(isDotDirectory(ent))
+				continue;
 
-				lstat(ent->d_name, &statbuf);
-				t = localtime(&statbuf.st_mtime);
+			lstat(ent->d_name, &statbuf);
 
+			if(isADirectory(statbuf, ent->d_name) == 1) {
+
+				char *currDir = strcat(getcwd(currentDir, PATH_MAX), "/");
+				currDir = strcat(currDir, ent->d_name);
+
+				printf("%s:\n",ent->d_name);
+
+				printDirectory(statbuf, dir, ent, currDir);
+			}
+			else{
+				printShortList(statbuf, ent);
+			}
+
+
+
+		}
+		closedir(dir);
+	}
+	else {
+		perror (cwd);
+	}
+}
+
+void wsh::printDirectoryWithSubLong(tm *t, struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir) {
+	if ((dir = opendir (currentDir)) != NULL) {
+
+		while( (ent = readdir(dir)) != NULL ) {
+			if(isDotDirectory(ent))
+				continue;
+
+			lstat(ent->d_name, &statbuf);
+			t = localtime(&statbuf.st_mtime);
+
+			if(isADirectory(statbuf, ent->d_name) == 1) {
+
+				char *currDir = strcat(getcwd(currentDir, PATH_MAX), "/");
+				currDir = strcat(currDir, ent->d_name);
+
+				printf("%s:\n",ent->d_name);
+
+				printDirectoryLong(t, statbuf, dir, ent, currDir);
+
+			}
+			else{
 				printLongList(statbuf, t, ent);
 
 			}
-			closedir(dir);
+
+
+
 		}
-		else {
-			/* could not open directory */
-			perror (cwd);
-		}
+		closedir(dir);
+	}
+	else {
+		perror (cwd);
+	}
 }
 
-char * wsh::isADirectory(struct stat &statbuf, char *const ent) {
-	if( S_ISDIR(statbuf.st_mode) ){
-		DIR *dir;
-		struct dirent *ent;
-		char pwd[PATH_MAX];
-		char parent[PATH_MAX];
-//					parent = cwd;
-//					puts(parent);
-		char *currentDir = strcat(getcwd(pwd, PATH_MAX), "/");
-//					puts(currentDir);
-		currentDir = strcat(currentDir, ent->d_name);
-		puts(currentDir);
-//					puts("parent");
-//					puts(parent);
+void wsh::printDirectoryLong(tm *t, struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir) {
+	if ((dir = opendir (currentDir)) != NULL) {
 
-//		printDirectory(statbuf, dir, ent, currentDir);
+		while( (ent = readdir(dir)) != NULL ) {
+			if( isDotDirectory(ent) )
+				continue;
 
-		return currentDir;
+			lstat(ent->d_name, &statbuf);
+			t = localtime(&statbuf.st_mtime);
+
+			printLongList(statbuf, t, ent);
+
+		}
+		closedir(dir);
+	}
+	else {
+		perror (currentDir);
+	}
+}
+
+int wsh::isADirectory(struct stat &statbuf, char *const ent) {
+
+	if( S_ISDIR(statbuf.st_mode) == 0 ){
+
+		return EXIT_SUCCESS;
 
 	}
+
+	return EXIT_FAILURE;
 }
 
 char * wsh::printDirectory(struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir) {
 	if ((dir = opendir (currentDir)) != NULL) {
 
-			while( (ent = readdir(dir)) != NULL ) {
-				if(isDotDirectory(ent))
-					continue;
+		while( (ent = readdir(dir)) != NULL ) {
+			if(isDotDirectory(ent))
+				continue;
 
-				lstat(ent->d_name, &statbuf);
+			lstat(ent->d_name, &statbuf);
 
-				printShortList(statbuf, ent);
+			printShortList(statbuf, ent);
 
-			}
-			closedir(dir);
 		}
-		else {
-			/* could not open directory */
-			perror (cwd);
-		}
+		closedir(dir);
+	}
+	else {
+		/* could not open directory */
+		perror (currentDir);
+	}
+	return nullptr;
 }
 
 
 
 void wsh::printShortList(struct stat &statbuf, dirent *ent) {
 	printf("%s%s\n"
-				,ent->d_name
-				,(ent->d_type & DT_DIR) ? "/" :
+	,ent->d_name
+	,(ent->d_type & DT_DIR) ? "/" :
+	(statbuf.st_mode & S_IXUSR) ? "*" :
+	"");
+}
+
+void wsh::printShortListDir(struct stat &statbuf, dirent *ent) {
+	if( S_ISDIR(statbuf.st_mode) == 0 ){
+		puts("");
+	}
+	else{
+		printf("%s%s\n", ent->d_name, (ent->d_type & DT_DIR) ? ":" :
 				(statbuf.st_mode & S_IXUSR) ? "*" :
-				"");
+						"");
+	}
 }
 
 void wsh::printLongList(struct stat &statbuf, tm *t, dirent *ent) {
 	printf("%s%s%s%s%s%s%s%s%s%s %7jd %02d/%02d/%04d %02d:%02d:%02d %s\n"
-				,(S_ISDIR(statbuf.st_mode)) ? "d" : "-"
-				,(statbuf.st_mode & S_IRUSR) ? "r" : "-"
-				,(statbuf.st_mode & S_IWUSR) ? "w" : "-"
-				,(statbuf.st_mode & S_IXUSR) ? "x" : "-"
-				,(statbuf.st_mode & S_IRGRP) ? "r" : "-"
-				,(statbuf.st_mode & S_IWGRP) ? "w" : "-"
-				,(statbuf.st_mode & S_IXGRP) ? "x" : "-"
-				,(statbuf.st_mode & S_IROTH) ? "r" : "-"
-				,(statbuf.st_mode & S_IWOTH) ? "w" : "-"
-				,(statbuf.st_mode & S_IXOTH) ? "x" : "-"
-				,(intmax_t) statbuf.st_size
-				,t->tm_mon+1
-				,t->tm_mday
-				,t->tm_year+1900
-				,t->tm_hour
-				,t->tm_min
-				,t->tm_sec
-				,ent->d_name);
+	,(S_ISDIR(statbuf.st_mode)) ? "d" : "-"
+	,(statbuf.st_mode & S_IRUSR) ? "r" : "-"
+	,(statbuf.st_mode & S_IWUSR) ? "w" : "-"
+	,(statbuf.st_mode & S_IXUSR) ? "x" : "-"
+	,(statbuf.st_mode & S_IRGRP) ? "r" : "-"
+	,(statbuf.st_mode & S_IWGRP) ? "w" : "-"
+	,(statbuf.st_mode & S_IXGRP) ? "x" : "-"
+	,(statbuf.st_mode & S_IROTH) ? "r" : "-"
+	,(statbuf.st_mode & S_IWOTH) ? "w" : "-"
+	,(statbuf.st_mode & S_IXOTH) ? "x" : "-"
+	,(intmax_t) statbuf.st_size
+	,t->tm_mon+1
+	,t->tm_mday
+	,t->tm_year+1900
+	,t->tm_hour
+	,t->tm_min
+	,t->tm_sec
+	,ent->d_name);
 }
 
 bool wsh::isDotDirectory(dirent *ent) {
 	return strcmp(ent->d_name, ".") == 0 ||  strcmp(ent->d_name, "..") == 0;
 }
 
-int display_info(const char *fpath, const struct stat *sb, int type)
-{
-	printf("%s", fpath);
-	if( S_ISDIR(sb->st_mode) )
-		puts("/");
-	else if ( sb->st_mode & S_IXUSR )
-		puts("*");
-	else
-		puts("");
-	return 0;
-}
+//int display_info(const char *fpath, const struct stat *sb, int type)
+//{
+//	printf("%s", fpath);
+//	if( S_ISDIR(sb->st_mode) )
+//		puts("/");
+//	else if ( sb->st_mode & S_IXUSR )
+//		puts("*");
+//	else
+//		puts("");
+//	return 0;
+//}
 
 //static int display_info(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf)
 //{
