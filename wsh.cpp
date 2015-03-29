@@ -209,15 +209,41 @@ int wsh::list(int argc, char **argv) {
 		printDirectory(statbuf, dir, ent, cwd);
 
 	}
+	if(strcmp(argv[0], "list") == 0 && argc ==2){
+
+		char currDir[PATH_MAX];
+		strcpy(currDir , getcwd(cwd, PATH_MAX));
+		strcpy(currDir, argv[1]);
+		printDirectory(statbuf, dir, ent, currDir);
+
+	}
 
 	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-l") == 0 && argc == 2) {
 
 		printDirectoryLong(t, statbuf, dir, ent, cwd);
 
 	}
+	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-l") == 0 && argc == 3) {
+
+		char currDir[PATH_MAX];
+		strcpy(currDir , getcwd(cwd, PATH_MAX));
+		strcpy(currDir, argv[2]);
+		printDirectoryLong(t, statbuf, dir, ent, currDir);
+
+	}
+
 	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-ls") == 0 && argc == 2) {
 
 		printDirectoryWithSubLong(t, statbuf, dir, ent, cwd);
+
+	}
+
+	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-ls") == 0 && argc == 3) {
+
+		char currDir[PATH_MAX];
+		strcpy(currDir , getcwd(cwd, PATH_MAX));
+		strcpy(currDir, argv[2]);
+		printDirectoryWithSubLong(t, statbuf, dir, ent, currDir);
 
 	}
 
@@ -227,9 +253,27 @@ int wsh::list(int argc, char **argv) {
 
 	}
 
+	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-sl") == 0 && argc == 3) {
+
+		char currDir[PATH_MAX];
+		strcpy(currDir , getcwd(cwd, PATH_MAX));
+		strcpy(currDir, argv[2]);
+		printDirectoryWithSubLong(t, statbuf, dir, ent, currDir);
+
+	}
+
 	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-s") == 0 && argc == 2) {
 
 		printDirectoryWithSubDirectory(statbuf, dir, ent, cwd);
+
+	}
+
+	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-s") == 0 && argc == 3) {
+
+		char currDir[PATH_MAX];
+		strcpy(currDir , getcwd(cwd, PATH_MAX));
+		strcpy(currDir, argv[2]);
+		printDirectoryWithSubDirectory(statbuf, dir, ent, currDir);
 
 	}
 
@@ -239,11 +283,31 @@ int wsh::list(int argc, char **argv) {
 
 	}
 
+	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-l") == 0 && strcmp(argv[2], "-s") == 0 && argc == 4) {
+
+		char currDir[PATH_MAX];
+		strcpy(currDir , getcwd(cwd, PATH_MAX));
+		strcpy(currDir, argv[3]);
+		printDirectoryWithSubLong(t, statbuf, dir, ent, currDir);
+
+	}
+
 	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-s") == 0 && strcmp(argv[2], "-l") == 0 && argc == 3) {
 
 		printDirectoryWithSubLong(t, statbuf, dir, ent, cwd);
 
 	}
+
+	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-s") == 0 && strcmp(argv[2], "-l") == 0 && argc == 4) {
+
+		char currDir[PATH_MAX];
+		strcpy(currDir , getcwd(cwd, PATH_MAX));
+		strcpy(currDir, argv[3]);
+		printDirectoryWithSubLong(t, statbuf, dir, ent, currDir);
+
+	}
+
+
 
 
 	return EXIT_SUCCESS;
