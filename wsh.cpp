@@ -257,7 +257,7 @@ void wsh::printDirectoryWithSubDirectory(struct stat &statbuf, DIR *dir, dirent 
 		closedir(dir);
 	}
 	else {
-		perror (cwd);
+		perror (currentDir);
 	}
 }
 
@@ -292,7 +292,7 @@ void wsh::printDirectoryWithSubLong(tm *t, struct stat &statbuf, DIR *dir, diren
 		closedir(dir);
 	}
 	else {
-		perror (cwd);
+		perror (currentDir);
 	}
 }
 
