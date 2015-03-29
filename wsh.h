@@ -2,8 +2,6 @@
 #include <map>
 #include <string>
 #include <limits.h>
-#include <sys/dirent.h>
-#include <sys/stat.h>
 #include <dirent.h>
 
 using namespace std;
