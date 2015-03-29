@@ -224,7 +224,7 @@ int wsh::list(int argc, char **argv) {
 	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-s") == 0 && argc == 2) {
 
 		printDirectoryWithSubDirectory(statbuf, dir, ent, cwd);
-		
+
 	}
 	return EXIT_SUCCESS;
 }
@@ -240,8 +240,11 @@ void wsh::printDirectoryWithSubDirectory(struct stat &statbuf, DIR *dir, dirent 
 
 			if(isADirectory(statbuf, ent->d_name) == 1) {
 
-				char *currDir = strcat(getcwd(currentDir, PATH_MAX), "/");
-				currDir = strcat(currDir, ent->d_name);
+//				char *currDir = strcat(getcwd(currentDir, PATH_MAX), "/");
+//				currDir = strcat(currDir, ent->d_name);
+				char currDir[PATH_MAX];
+				strcpy(currDir , getcwd(currentDir, PATH_MAX));
+				strcpy(currDir, ent->d_name);
 
 				printf("%s:\n",ent->d_name);
 
@@ -273,8 +276,12 @@ void wsh::printDirectoryWithSubLong(tm *t, struct stat &statbuf, DIR *dir, diren
 
 			if(isADirectory(statbuf, ent->d_name) == 1) {
 
-				char *currDir = strcat(getcwd(currentDir, PATH_MAX), "/");
-				currDir = strcat(currDir, ent->d_name);
+//				char *currDir = strcat(getcwd(currentDir, PATH_MAX), "/");
+//				currDir = strcat(currDir, ent->d_name);
+
+				char currDir[PATH_MAX];
+				strcpy(currDir , getcwd(currentDir, PATH_MAX));
+				strcpy(currDir, ent->d_name);
 
 				printf("%s:\n",ent->d_name);
 
