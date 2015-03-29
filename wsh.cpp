@@ -9,6 +9,7 @@
 #include <dirent.h>
 #include <time.h>
 #include <ftw.h>
+#include <inttypes.h>
 
 using namespace std;
 
@@ -197,11 +198,11 @@ void wsh::list() {
 int wsh::list(int argc, char **argv) {
 	struct stat statbuf;
 //	struct FTW ftwbuf;
-	struct tm *t = nullptr;
+	struct tm *t = NULL;
 //	int flags = 0;
 //	char buffer[PATH_MAX];
-	DIR *dir = nullptr;
-	struct dirent *ent = nullptr;
+	DIR *dir = NULL; 
+	struct dirent *ent = NULL;
 
 	if(strcmp(argv[0], "list") == 0 && argc ==1){
 
@@ -344,7 +345,7 @@ char * wsh::printDirectory(struct stat &statbuf, DIR *dir, dirent *ent, char *cu
 		/* could not open directory */
 		perror (currentDir);
 	}
-	return nullptr;
+	return NULL;
 }
 
 
