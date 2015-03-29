@@ -48,7 +48,7 @@ class wsh
 
 	int isADirectory(struct stat &statbuf, char *const ent);
 
-	char * printDirectory(struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir);
+	void printDirectory(struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir);
 
 //	void printDirectoryLong(tm *t, struct stat &statbuf, DIR *&dir, dirent *&ent, char *currentDir);
 	void printDirectoryLong(tm *t, struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir);

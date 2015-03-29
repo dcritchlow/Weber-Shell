@@ -224,7 +224,7 @@ int wsh::list(int argc, char **argv) {
 	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-s") == 0 && argc == 2) {
 
 		printDirectoryWithSubDirectory(statbuf, dir, ent, cwd);
-
+		
 	}
 	return EXIT_SUCCESS;
 }
@@ -327,7 +327,7 @@ int wsh::isADirectory(struct stat &statbuf, char *const ent) {
 	return EXIT_FAILURE;
 }
 
-char * wsh::printDirectory(struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir) {
+void wsh::printDirectory(struct stat &statbuf, DIR *dir, dirent *ent, char *currentDir) {
 	if ((dir = opendir (currentDir)) != NULL) {
 
 		while( (ent = readdir(dir)) != NULL ) {
@@ -345,7 +345,6 @@ char * wsh::printDirectory(struct stat &statbuf, DIR *dir, dirent *ent, char *cu
 		/* could not open directory */
 		perror (currentDir);
 	}
-	return NULL;
 }
 
 
