@@ -221,11 +221,31 @@ int wsh::list(int argc, char **argv) {
 
 	}
 
+	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-sl") == 0 && argc == 2) {
+
+		printDirectoryWithSubLong(t, statbuf, dir, ent, cwd);
+
+	}
+
 	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-s") == 0 && argc == 2) {
 
 		printDirectoryWithSubDirectory(statbuf, dir, ent, cwd);
 
 	}
+
+	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-l") == 0 && strcmp(argv[2], "-s") == 0 && argc == 3) {
+
+		printDirectoryWithSubLong(t, statbuf, dir, ent, cwd);
+
+	}
+
+	if (strcmp(argv[0], "list") == 0 && strcmp(argv[1], "-s") == 0 && strcmp(argv[2], "-l") == 0 && argc == 3) {
+
+		printDirectoryWithSubLong(t, statbuf, dir, ent, cwd);
+
+	}
+
+
 	return EXIT_SUCCESS;
 }
 
