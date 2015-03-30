@@ -462,7 +462,7 @@ void wsh::printShortListDir(struct stat &statbuf, dirent *ent) {
 }
 
 void wsh::printLongList(struct stat &statbuf, tm *t, dirent *ent) {
-	printf("%s%s%s%s%s%s%s%s%s%s %7jd %02d/%02d/%04d %02d:%02d:%02d %s\n"
+	printf("%s%s%s%s%s%s%s%s%s%s %d %02d/%02d/%04d %02d:%02d:%02d %s\n"
 	,(S_ISDIR(statbuf.st_mode)) ? "d" : "-"
 	,(statbuf.st_mode & S_IRUSR) ? "r" : "-"
 	,(statbuf.st_mode & S_IWUSR) ? "w" : "-"
@@ -473,7 +473,7 @@ void wsh::printLongList(struct stat &statbuf, tm *t, dirent *ent) {
 	,(statbuf.st_mode & S_IROTH) ? "r" : "-"
 	,(statbuf.st_mode & S_IWOTH) ? "w" : "-"
 	,(statbuf.st_mode & S_IXOTH) ? "x" : "-"
-	,(intmax_t) statbuf.st_size
+	, (int) statbuf.st_size
 	,t->tm_mon+1
 	,t->tm_mday
 	,t->tm_year+1900
