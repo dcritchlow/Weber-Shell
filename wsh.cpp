@@ -210,11 +210,12 @@ int wsh::list(int argc, char **argv) {
 
 	}
 	if(strcmp(argv[0], "list") == 0 && argc ==2){
-
-		char currDir[PATH_MAX];
-		strcpy(currDir , getcwd(cwd, PATH_MAX));
-		strcpy(currDir, argv[1]);
-		printDirectory(statbuf, dir, ent, currDir);
+		if(strcmp(argv[1], "-s")){
+			char currDir[PATH_MAX];
+			strcpy(currDir , getcwd(cwd, PATH_MAX));
+			strcpy(currDir, argv[1]);
+			printDirectory(statbuf, dir, ent, currDir);
+		}
 
 	}
 
@@ -321,6 +322,7 @@ void wsh::printDirectoryWithSubDirectory(struct stat &statbuf, DIR *dir, dirent 
 				continue;
 
 			lstat(ent->d_name, &statbuf);
+			printShortList(statbuf, ent);
 
 			if(isADirectory(statbuf, ent->d_name) == 1) {
 
@@ -333,9 +335,6 @@ void wsh::printDirectoryWithSubDirectory(struct stat &statbuf, DIR *dir, dirent 
 				printf("%s:\n",ent->d_name);
 
 				printDirectoryWithSubDirectory(statbuf, dir, ent, currDir);
-			}
-			else{
-				printShortList(statbuf, ent);
 			}
 
 
