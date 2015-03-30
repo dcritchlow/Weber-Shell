@@ -10,6 +10,7 @@
 #include <time.h>
 #include <ftw.h>
 #include <inttypes.h>
+#include <sys/syslimits.h>
 
 using namespace std;
 
@@ -210,7 +211,7 @@ int wsh::list(int argc, char **argv) {
 
 	}
 	if(strcmp(argv[0], "list") == 0 && argc ==2){
-		if(strcmp(argv[1], "-s")){
+		if(strcmp(argv[1], "-s") == 1 || strcmp(argv[1], "-l") == 1){
 			char currDir[PATH_MAX];
 			strcpy(currDir , getcwd(cwd, PATH_MAX));
 			strcpy(currDir, argv[1]);
@@ -331,6 +332,8 @@ void wsh::printDirectoryWithSubDirectory(struct stat &statbuf, DIR *dir, dirent 
 				char currDir[PATH_MAX];
 				strcpy(currDir , getcwd(currentDir, PATH_MAX));
 				strcpy(currDir, ent->d_name);
+
+				cout << "currDir " << currDir << endl;
 
 				printf("%s:\n",ent->d_name);
 
