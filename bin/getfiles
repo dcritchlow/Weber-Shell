@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# this is a placeholder for the commandline program which will retrieve 
+# the student's source file(s) and install them into tmp/aruba for compilation
+
+#echo $(pwd)
+#echo "Getfiles called!"
+rm -f ../bin/*
+rm -rf tmp/aruba/*
+cp ../../wsh.cpp ../bin/
+cp ../../wsh.h ../bin/
+#cp ../../Makefile ../bin/

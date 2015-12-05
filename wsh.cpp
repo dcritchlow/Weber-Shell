@@ -18,7 +18,7 @@ using namespace std;
 
 // used to convert numeric file modes to string representation
 
-char*	fmodes[] = { "---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx" };
+//char*	fmodes[] = { "---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx" };
 
 
 // -----------------------------------------------------------------------------------
